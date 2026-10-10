@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-10-10",
+  "currency_note": "当前 MVP 只比较 USD API 标准输入/输出价格；不同供应商的税费、汇率和账户折扣未纳入。",
+  "models": [
+    {
+      "provider": "DeepSeek",
+      "model_id": "deepseek-flash",
+      "display_name": "DeepSeek V4.1 Flash",
+      "input_price_per_million": 0.15,
+      "output_price_per_million": 0.6,
+      "currency": "USD",
+      "pricing_unit": "per_1m_tokens",
+      "pricing_status": "verified",
+      "source_url": "https://api-docs.deepseek.com/quick_start/pricing/",
+      "checked_at": "2026-10-10",
+      "pricing_notes": "官方页面的非高峰、缓存未命中价格；高峰输入为 $0.30/M、输出为 $1.20/M。缓存命中价格未纳入计算。"
+    },
+    {
+      "provider": "DeepSeek",
+      "model_id": "deepseek-v4-pro",
+      "display_name": "DeepSeek V4 Pro",
+      "input_price_per_million": 0.66,
+      "output_price_per_million": 1.98,
+      "currency": "USD",
+      "pricing_unit": "per_1m_tokens",
+      "pricing_status": "verified",
+      "source_url": "https://api-docs.deepseek.com/quick_start/pricing/",
+      "checked_at": "2026-10-10",
+      "pricing_notes": "官方页面的非高峰、缓存未命中价格；高峰输入为 $1.32/M、输出为 $3.96/M。缓存命中价格未纳入计算。"
+    },
+    {
+      "provider": "OpenAI",
+      "model_id": "gpt-4.1-mini",
+      "display_name": "GPT-4.1 mini",
+      "input_price_per_million": null,
+      "output_price_per_million": null,
+      "currency": "USD",
+      "pricing_unit": "per_1m_tokens",
+      "pricing_status": "pending",
+      "source_url": "https://openai.com/api/pricing/",
+      "checked_at": "2026-10-09",
+      "pricing_notes": "官方页面在本次核验环境中未能稳定提取可审计的模型价格；确认后再加入计算。"
+    },
+    {
+      "provider": "Anthropic",
+      "model_id": "claude-sonnet-pending",
+      "display_name": "Claude Sonnet（待核实版本）",
+      "input_price_per_million": null,
+      "output_price_per_million": null,
+      "currency": "USD",
+      "pricing_unit": "per_1m_tokens",
+      "pricing_status": "pending",
+      "source_url": "https://www.anthropic.com/pricing",
+      "checked_at": "2026-10-09",
+      "pricing_notes": "官方页面存在动态价格内容，但当前未确认与具体 API model ID 对应的标准价格；确认后再加入计算。"
+    }
+  ]
+}
