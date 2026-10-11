@@ -3,109 +3,91 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Model Cost Lab：用可核验的公开价格估算 AI 任务成本并比较模型。">
-  <title>Model Cost Lab | AI 模型成本比较</title>
+  <meta name="description" content="Model Cost Lab：面向大学生的 AI 任务工作台，帮助你整理任务、选择模型并透明估算成本。">
+  <title>Model Cost Lab | AI 任务工作台</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header class="site-header">
     <div class="container nav-wrap">
-      <a class="brand" href="#top" aria-label="Model Cost Lab 首页">MODEL COST LAB</a>
+      <a class="brand" href="#top" aria-label="Model Cost Lab 首页"><span class="brand-mark">+</span> MODEL COST LAB</a>
       <nav class="nav-links" aria-label="主要导航">
-        <a href="#calculator">成本计算器</a>
-        <a href="#models">模型价格</a>
-        <a href="#about">数据说明</a>
+        <a href="#workspace" data-view-link="workspace">任务工作台</a>
+        <a href="#models" data-view-link="models">模型价格</a>
+        <a href="#calculator" data-view-link="calculator">成本估算</a>
       </nav>
     </div>
   </header>
 
   <main id="top">
-    <section id="calculator" class="section container primary-workspace">
-      <div class="section-heading">
-        <div><p class="eyebrow">MODEL COST LAB</p><h1>你想用 AI 做什么？</h1><p class="workspace-intro">选一个演示场景，立即估算同一任务在不同模型上的费用；也可以自己填写 Token。</p></div>
+    <section id="workspace" class="app-view is-active section container workspace-section">
+      <div class="hero-copy">
+        <p class="eyebrow">AI TASK WORKSPACE</p>
+        <h1>这次的任务，交给 AI。</h1>
+        <p class="hero-intro">先写下你要完成的事情，再按需补充要求。Model Cost Lab 会把任务整理成一份可继续修改的工作流。</p>
+        <div class="trust-row" aria-label="产品边界"><span>无需登录</span><span>不收集你的 API Key</span><span>脚本生成会发送任务内容给 DeepSeek</span></div>
       </div>
-      <div class="trust-row" aria-label="产品边界"><span>无需登录</span><span>不收集 API Key</span><span>本地计算</span></div>
-      <div class="scenario-picker" role="group" aria-label="选择任务场景">
-        <button class="scenario-card is-selected" type="button" data-scenario="code" aria-pressed="true"><span class="scenario-icon">&lt;/&gt;</span><span><strong>代码修改</strong><small>修复一个问题或调整功能</small></span></button>
-        <button class="scenario-card" type="button" data-scenario="summary" aria-pressed="false"><span class="scenario-icon">Aa</span><span><strong>文本摘要</strong><small>把长文压缩成重点</small></span></button>
-        <button class="scenario-card" type="button" data-scenario="translation" aria-pressed="false"><span class="scenario-icon">中/EN</span><span><strong>文本翻译</strong><small>在两种语言之间转换</small></span></button>
-        <button class="scenario-card scenario-manual" type="button" data-scenario="manual" aria-pressed="false"><span class="scenario-icon">#</span><span><strong>手动输入</strong><small>我已经知道 Token 数量</small></span></button>
+
+      <div id="workspace-editor" class="workspace-shell">
+        <div class="workspace-heading">
+          <div><p class="eyebrow">START WITH A TASK</p><h2>你想先完成什么？</h2><p class="composer-hint">不用先选类型，直接描述你的任务也可以。</p></div>
+          <span id="workspace-mode" class="status-chip neutral">演示模式</span>
+        </div>
+        <div class="task-picker" role="group" aria-label="快捷选择任务方向">
+          <button class="task-shortcut is-selected" type="button" data-task="ppt" aria-pressed="true"><span class="task-icon">P</span><span>PPT 与汇报</span></button>
+          <button class="task-shortcut" type="button" data-task="script" aria-pressed="false"><span class="task-icon">S</span><span>脚本与分镜</span></button>
+          <button class="task-shortcut" type="button" data-task="video" aria-pressed="false"><span class="task-icon">V</span><span>视频生成</span></button>
+          <button class="task-shortcut" type="button" data-task="visual" aria-pressed="false"><span class="task-icon">I</span><span>图片与视觉</span></button>
+          <button class="task-shortcut" type="button" data-task="research" aria-pressed="false"><span class="task-icon">R</span><span>资料整理</span></button>
+        </div>
+        <div class="composer-main">
+          <label class="sr-only" for="task-prompt">任务描述</label>
+          <textarea id="task-prompt" rows="1" placeholder="例如：老师让我制作一份 8 页的短视频账号运营汇报 PPT……"></textarea>
+          <div class="composer-footer"><span class="input-note">Enter 发送 · Shift + Enter 换行</span><span class="attachment-note" title="当前版本不读取附件">附件暂未开放</span></div>
+          <div id="script-access" class="script-access" hidden>
+            <label for="access-token">个人访问令牌</label>
+            <input id="access-token" type="password" autocomplete="off" spellcheck="false" maxlength="256" placeholder="仅用于本次页面访问">
+            <small>仅保留在当前页面内存中；刷新后需重新输入。请勿在共享设备上输入。</small>
+          </div>
+          <div class="composer-controls">
+            <div class="model-preferences" aria-label="模型选择偏好">
+              <span class="preference-label">模型策略</span>
+              <select id="model-strategy" aria-label="模型选择策略"><option value="auto">自动推荐</option><option value="quality">质量优先</option><option value="cost">成本优先</option><option value="manual">手动选择模型</option></select>
+              <p id="strategy-description" class="preference-description">按任务类型和已核验价格给出规则推荐，不代表实时评测。</p>
+              <label id="manual-model-wrap" class="manual-model-wrap" hidden for="manual-model">选择模型<select id="manual-model"><option value="">读取中...</option></select></label>
+            </div>
+            <button id="run-task" class="button button-primary run-task" type="button">整理这个任务 <span aria-hidden="true">→</span></button>
+          </div>
+        </div>
+        <details id="task-requirements" class="task-requirements">
+          <summary><span>添加任务要求</span><small>可选，帮助演示工作流更贴近你的作业</small></summary>
+          <div id="task-fields" class="task-fields" aria-label="任务关键信息"></div>
+        </details>
+        <p id="workspace-status" class="workspace-status" role="status" aria-live="polite"></p>
       </div>
+
+      <div id="workspace-result" class="workspace-result" hidden>
+        <div class="result-header"><div><p class="eyebrow">TASK OUTLINE</p><h2 id="workflow-title">任务结果</h2><p id="workflow-description" class="section-intro"></p></div><span id="workflow-mode" class="status-chip neutral">预设演示结果</span></div>
+        <div class="workflow-meta"><span id="workflow-task-label"></span><span id="workflow-model-label"></span></div>
+        <div class="workflow-layout"><div><h3>你提供的任务</h3><blockquote id="workflow-prompt"></blockquote><h3 class="constraints-heading">已填写的关键信息</h3><dl id="workflow-constraints" class="workflow-constraints"></dl><p id="workflow-disclaimer" class="demo-disclaimer">这不是实时 AI 生成内容，而是根据任务类型准备的本地演示结构。它用于帮助你判断工作流是否符合需要。</p></div><div><h3>参考执行步骤</h3><ol id="workflow-steps" class="workflow-steps"></ol></div></div>
+        <div class="workflow-output"><strong>预期交付</strong><p id="workflow-output-text"></p></div>
+        <section id="workflow-live" class="workflow-live" aria-label="实时生成结果" hidden><h3>脚本与分镜生成结果</h3><p id="workflow-live-status" role="status" aria-live="polite"></p><pre id="workflow-live-content" hidden></pre><p id="workflow-live-usage" class="demo-disclaimer" hidden></p><button id="retry-script" class="button button-secondary" type="button" hidden>重试生成</button></section>
+        <div class="workflow-actions"><button id="edit-task" class="button button-secondary" type="button">返回修改任务</button><a class="button button-secondary" href="#calculator">查看成本估算</a></div>
+      </div>
+    </section>
+
+    <section id="calculator" class="app-view section container calculator-section">
+      <div class="section-heading"><div><p class="eyebrow">COST ESTIMATE</p><h2>需要预算时，再看 Token 成本。</h2><p class="workspace-intro">用同一组演示用量比较已核验价格。成本只作为预算参考，不代表模型质量。</p></div></div>
+      <div class="scenario-picker" role="group" aria-label="选择成本估算场景"><button class="scenario-card is-selected" type="button" data-scenario="code" aria-pressed="true"><span class="scenario-icon">&lt;/&gt;</span><span><strong>代码修改</strong><small>修复一个问题或调整功能</small></span></button><button class="scenario-card" type="button" data-scenario="summary" aria-pressed="false"><span class="scenario-icon">Aa</span><span><strong>文本摘要</strong><small>把长文压缩成重点</small></span></button><button class="scenario-card" type="button" data-scenario="translation" aria-pressed="false"><span class="scenario-icon">中/EN</span><span><strong>文本翻译</strong><small>在两种语言之间转换</small></span></button><button class="scenario-card scenario-manual" type="button" data-scenario="manual" aria-pressed="false"><span class="scenario-icon">#</span><span><strong>手动输入</strong><small>我已经知道 Token 数量</small></span></button></div>
       <p id="scenario-assumption" class="scenario-assumption">演示假设：代码修改，输入 12,000 Token，输出 3,000 Token。这个数量只用于展示，可随时修改。</p>
-      <div class="calculator-layout">
-        <form id="calculator-form" class="panel calculator-panel" novalidate>
-          <div class="panel-title-row"><h3>任务用量</h3><span class="status-chip neutral">本地计算</span></div>
-          <div class="field-grid">
-            <div class="field">
-              <label for="input-tokens">输入 Token</label>
-              <input id="input-tokens" name="inputTokens" type="number" min="0" max="1000000000000" step="1" value="12000" inputmode="numeric">
-            </div>
-            <div class="field">
-              <label for="output-tokens">输出 Token</label>
-              <input id="output-tokens" name="outputTokens" type="number" min="0" max="1000000000000" step="1" value="3000" inputmode="numeric">
-            </div>
-          </div>
-          <div id="input-error" class="field-error" role="alert" aria-live="polite"></div>
-          <div class="assumption-box">
-            <strong>当前计算假设</strong>
-            <span>按每百万 Token 的普通输入/输出价格估算，不含缓存命中、批量折扣、税费或其他供应商费用。</span>
-          </div>
-          <p class="formula">总成本 = 输入 Token / 1,000,000 × 输入单价 + 输出 Token / 1,000,000 × 输出单价</p>
-        </form>
-        <div class="panel results-panel">
-          <div class="panel-title-row"><div><p class="eyebrow">ESTIMATES</p><h3>同一组用量的模型比较</h3></div><label class="sort-control" for="sort-mode">排序<select id="sort-mode"><option value="cost">费用从低到高</option><option value="input">输入价格从低到高</option><option value="output">输出价格从低到高</option></select></label></div>
-          <div id="usage-summary" class="usage-summary"></div>
-          <div id="results" class="results-list" aria-live="polite"></div>
-          <p class="estimate-disclaimer">这是基于当前价格和示例 Token 用量的估算，不代表模型输出质量，也不等于实际账单。待核实价格不会参与正式排序。</p>
-        </div>
-      </div>
+      <div class="calculator-layout"><form id="calculator-form" class="panel calculator-panel" novalidate><div class="panel-title-row"><h3>任务用量</h3><span class="status-chip neutral">本地计算</span></div><div class="field-grid"><div class="field"><label for="input-tokens">输入 Token</label><input id="input-tokens" name="inputTokens" type="number" min="0" max="1000000000000" step="1" value="12000" inputmode="numeric"></div><div class="field"><label for="output-tokens">输出 Token</label><input id="output-tokens" name="outputTokens" type="number" min="0" max="1000000000000" step="1" value="3000" inputmode="numeric"></div></div><div id="input-error" class="field-error" role="alert" aria-live="polite"></div><div class="assumption-box"><strong>当前计算假设</strong><span>按每百万 Token 的普通输入/输出价格估算，不含缓存命中、批量折扣、税费或其他供应商费用。</span></div><p class="formula">总成本 = 输入 Token / 1,000,000 × 输入单价 + 输出 Token / 1,000,000 × 输出单价</p></form><div class="panel results-panel"><div class="panel-title-row"><div><p class="eyebrow">ESTIMATES</p><h3>同一组用量的模型比较</h3></div><label class="sort-control" for="sort-mode">排序<select id="sort-mode"><option value="cost">费用从低到高</option><option value="input">输入价格从低到高</option><option value="output">输出价格从低到高</option></select></label></div><div id="usage-summary" class="usage-summary"></div><div id="results" class="results-list" aria-live="polite"></div><p class="estimate-disclaimer">这是基于当前价格和示例 Token 用量的估算，不代表模型输出质量，也不等于实际账单。待核实价格不会参与正式排序。</p></div></div>
     </section>
 
-    <section id="models" class="section section-muted">
-      <div class="container">
-        <div class="section-heading">
-          <div><p class="eyebrow">MODEL PRICES</p><h2>价格数据与来源</h2></div>
-          <div class="filter-wrap"><label for="provider-filter">供应商筛选</label><select id="provider-filter"><option value="all">全部供应商</option></select></div>
-        </div>
-        <div id="data-status" class="data-status" role="status" aria-live="polite">正在读取价格数据...</div>
-        <div class="table-wrap">
-          <table class="price-table">
-            <thead><tr><th>模型</th><th>输入 / 1M</th><th>输出 / 1M</th><th>状态</th><th>来源与核验</th></tr></thead>
-            <tbody id="price-table-body"></tbody>
-          </table>
-        </div>
-        <p class="mobile-hint">在手机上可横向滑动查看完整价格表。</p>
-      </div>
-    </section>
-
-    <section id="about" class="section container about-grid">
-      <div><p class="eyebrow">DATA NOTES</p><h2>透明地说明能算什么。</h2></div>
-      <div class="about-copy">
-        <p>数据按供应商官方 API 定价页面整理。每条记录带有模型 ID、货币、计量单位、来源 URL、核验日期和备注。</p>
-        <p>DeepSeek 价格按官方页面的非高峰、缓存未命中价格计算；官方页面说明高峰时段价格更高。OpenAI 和 Anthropic 的记录在当前版本保留来源，但在无法从官方页面稳定确认具体价格前不会参与计算。</p>
-        <p>本工具不调用模型、不读取账单、不保存 API Key。请在实际采购或预算决策前重新访问供应商页面。</p>
-      </div>
-    </section>
-
-    <section id="feedback" class="section section-muted feedback-section">
-      <div class="container feedback-grid">
-        <div><p class="eyebrow">EARLY FEEDBACK</p><h2>帮我们找到真正值得解决的问题。</h2><p class="feedback-lead">反馈只在当前页面处理，不会自动上传，也不需要留下联系方式。复制后粘贴到你选择的邮件或社区。</p></div>
-        <div class="panel feedback-panel">
-          <div class="feedback-fields">
-            <label>使用过程中遇到的问题<textarea id="feedback-problem" rows="2" placeholder="例如：我不知道该输入多少 Token"></textarea></label>
-            <label>希望增加的模型<textarea id="feedback-models" rows="2" placeholder="例如：希望比较某个模型"></textarea></label>
-            <label>希望支持的任务类型<textarea id="feedback-tasks" rows="2" placeholder="例如：信息抽取、长文分析"></textarea></label>
-            <label>其他建议<textarea id="feedback-other" rows="2" placeholder="任何让工具更有用的想法"></textarea></label>
-          </div>
-          <button id="copy-feedback" class="button button-primary" type="button">复制反馈模板</button>
-          <p id="feedback-status" class="feedback-status" role="status" aria-live="polite"></p>
-          <div id="feedback-fallback" class="feedback-fallback" hidden><label for="feedback-copy-text">手动复制反馈内容</label><textarea id="feedback-copy-text" rows="9" readonly></textarea></div>
-        </div>
-      </div>
-    </section>
+    <section id="models" class="app-view section section-muted"><div class="container"><div class="section-heading"><div><p class="eyebrow">MODEL &amp; TOOL NOTES</p><h2>模型与价格，保持透明。</h2><p class="section-intro">只展示可追溯的官方定价。待核实记录会留在表里，但不会进入成本计算。</p></div><div class="filter-wrap"><label for="provider-filter">供应商筛选</label><select id="provider-filter"><option value="all">全部供应商</option></select></div></div><div id="data-status" class="data-status" role="status" aria-live="polite">正在读取价格数据...</div><div class="table-wrap"><table class="price-table"><thead><tr><th>模型</th><th>输入 / 1M</th><th>输出 / 1M</th><th>状态</th><th>来源与核验</th></tr></thead><tbody id="price-table-body"></tbody></table></div><p class="mobile-hint">在手机上可横向滑动查看完整价格表。</p></div></section>
+    <section id="about" class="app-view section container about-grid"><div><p class="eyebrow">DATA NOTES</p><h2>透明地说明能算什么。</h2></div><div class="about-copy"><p>数据按供应商官方 API 定价页面整理。每条记录带有模型 ID、货币、计量单位、来源 URL、核验日期和备注。</p><p>DeepSeek 价格按官方页面的非高峰、缓存未命中价格计算；官方页面说明高峰时段价格更高。OpenAI 和 Anthropic 的记录在当前版本保留来源，但在无法从官方页面稳定确认具体价格前不会参与计算。</p><p>脚本与分镜提交后会经 Cloudflare Worker 将任务文字发送给 DeepSeek；其他工作流仍是本地演示。本站不读取账单，也不要求你提供 API Key。请在实际采购或预算决策前重新访问供应商页面。</p></div></section>
+    <section id="feedback" class="app-view section section-muted feedback-section"><div class="container feedback-grid"><div><p class="eyebrow">EARLY FEEDBACK</p><h2>帮我们找到真正值得解决的问题。</h2><p class="feedback-lead">反馈只在当前页面处理，不会自动上传，也不需要留下联系方式。复制后粘贴到你选择的邮件或社区。</p></div><div class="panel feedback-panel"><div class="feedback-fields"><label>使用过程中遇到的问题<textarea id="feedback-problem" rows="2" placeholder="例如：我不知道该输入多少 Token"></textarea></label><label>希望增加的模型<textarea id="feedback-models" rows="2" placeholder="例如：希望比较某个模型"></textarea></label><label>希望支持的任务类型<textarea id="feedback-tasks" rows="2" placeholder="例如：信息抽取、长文分析"></textarea></label><label>其他建议<textarea id="feedback-other" rows="2" placeholder="任何让工具更有用的想法"></textarea></label></div><button id="copy-feedback" class="button button-primary" type="button">复制反馈模板</button><p id="feedback-status" class="feedback-status" role="status" aria-live="polite"></p><div id="feedback-fallback" class="feedback-fallback" hidden><label for="feedback-copy-text">手动复制反馈内容</label><textarea id="feedback-copy-text" rows="9" readonly></textarea></div></div></div></section>
   </main>
-
-  <footer class="site-footer"><div class="container footer-inner"><span>Model Cost Lab · MVP</span><span>数据更新时间以页面记录为准</span></div></footer>
+  <footer class="site-footer"><div class="container footer-inner"><span>Model Cost Lab · AI 任务工作台 MVP</span><span>除脚本生成外，工作流内容为预设演示</span></div></footer>
   <script src="app.js" defer></script>
 </body>
 </html>
